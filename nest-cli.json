@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "database-session": {
+      "type": "library",
+      "root": "libs/database-session",
+      "entryFile": "index",
+      "sourceRoot": "libs/database-session/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database-session/tsconfig.lib.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
+}
