@@ -1,10 +1,12 @@
 import { DatabaseSession } from "./database-session";
 import { Connection, EntityManager } from "typeorm";
+import { SessionEntityManager } from "./session.entity-manager";
 
-export class TypeOrmDatabaseSession implements DatabaseSession {
+export class TypeOrmDatabaseSession implements DatabaseSession, SessionEntityManager {
   private entityManager: EntityManager;
   private transactionCommitPromise: (value: void) => void;
   private transactionRejectPromise: () => void;
+  private afterTransactionPromise: Promise<void>;
 
   constructor(
     private readonly dbConnection: Connection,
@@ -12,32 +14,41 @@ export class TypeOrmDatabaseSession implements DatabaseSession {
     this.entityManager = this.dbConnection.createEntityManager();
   }
 
-  transactionStart(): Promise<void> {
-    return new Promise(async (resolve) => {
-      await this.dbConnection.transaction(async (entityManager) => {
-        this.entityManager = entityManager;
+  async transactionStart(): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.afterTransactionPromise = new Promise<void>(async (afterTransactionResolve) => {
+          try {
+            await this.dbConnection.transaction(async (entityManager: EntityManager) => {
+              this.entityManager = entityManager;
+              await new Promise<undefined>((resolveCommitPromise, rejectCommitPromise) => {
+                this.transactionCommitPromise = rejectCommitPromise;
+                this.transactionRejectPromise = rejectCommitPromise;
+                resolve();
+              });
+            });
 
-        await new Promise(
-          (transactionCommitResolve, transactionRollbackReject) => {
-            this.transactionCommitPromise = transactionCommitResolve;
-            this.transactionRejectPromise = transactionRollbackReject;
-          },
-        );
-
-        return resolve();
-      });
+            return afterTransactionResolve();
+          } catch (err) {
+            return afterTransactionResolve();
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
     });
-
   }
 
-  transactionCommit(): void {
+  async transactionCommit(): Promise<void> {
     this.transactionCommitPromise();
     this.entityManager = this.dbConnection.createEntityManager();
+    return await this.afterTransactionPromise;
   }
 
-  transactionRollback(): void {
+  async transactionRollback(): Promise<void> {
     this.transactionRejectPromise();
     this.entityManager = this.dbConnection.createEntityManager();
+    return await this.afterTransactionPromise;
   }
 
   getEntityManager(): EntityManager {

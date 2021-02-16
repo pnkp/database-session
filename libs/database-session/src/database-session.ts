@@ -1,5 +1,5 @@
 export interface DatabaseSession {
   transactionStart(): Promise<void>;
-  transactionCommit(): void;
-  transactionRollback(): void;
+  transactionCommit(): Promise<void>;
+  transactionRollback(): Promise<void>;
 }
