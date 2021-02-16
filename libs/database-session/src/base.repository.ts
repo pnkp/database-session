@@ -1,12 +1,10 @@
-import { TypeOrmDatabaseSession } from "./type-orm.database-session";
 import { EntityManager, Repository } from "typeorm";
 import { EntityTarget } from "typeorm/common/EntityTarget";
-import { InjectEntityManager } from "@nestjs/typeorm";
+import { SessionEntityManager } from "./session.entity-manager";
 
-export class BaseRepository {
-  constructor(
-    @InjectEntityManager()
-    private readonly databaseSession: TypeOrmDatabaseSession) {
+export abstract class BaseRepository {
+  protected constructor(
+    private readonly databaseSession: SessionEntityManager) {
   }
 
   protected getRepository<TEntity>(entity: EntityTarget<TEntity>): Repository<TEntity> {
