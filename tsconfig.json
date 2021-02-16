@@ -9,10 +9,12 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
     "baseUrl": "./libs/database-session/src"
   },
   "exclude": [
     "libs/database-session/node_modules",
-    "dist"
+    "dist",
+    "test"
   ]
 }
