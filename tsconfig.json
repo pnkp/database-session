@@ -5,7 +5,6 @@
     "lib": ["ES2020"],
     "declaration": true,
     "outDir": "dist",
-    "strict": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,

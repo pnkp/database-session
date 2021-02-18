@@ -9,7 +9,7 @@ export class TestTransactionController {
     private readonly exampleRepository: ExampleRepository,
     @InjectDatabaseSession()
     private readonly databaseSession: DatabaseSession
-    ) {
+  ) {
   }
 
   @Post()
