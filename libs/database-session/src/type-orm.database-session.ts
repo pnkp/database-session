@@ -1,8 +1,7 @@
 import { DatabaseSession } from "./database-session";
 import { Connection, EntityManager } from "typeorm";
-import { SessionEntityManager } from "./session.entity-manager";
 
-export class TypeOrmDatabaseSession implements DatabaseSession, SessionEntityManager {
+export class TypeOrmDatabaseSession implements DatabaseSession {
   private entityManager: EntityManager;
   private transactionCommitPromise: (value: void) => void;
   private transactionRejectPromise: () => void;

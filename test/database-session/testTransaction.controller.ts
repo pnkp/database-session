@@ -33,12 +33,12 @@ export class TestTransactionController {
   ): Promise<any> {
     try {
       await this.databaseSession.transactionStart()
-      const result = await this.exampleRepository.save(data);
+      await this.exampleRepository.save(data);
       throw new Error("Transaction will be rollback!")
       await this.databaseSession.transactionCommit();
-      return result;
     } catch (e) {
       await this.databaseSession.transactionRollback();
+      await this.exampleRepository.save(data);
       throw e;
     }
   }

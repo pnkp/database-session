@@ -1,13 +1,13 @@
 import { BaseRepository } from "../../libs/database-session/src/base.repository";
 import { InjectSessionEntityManager } from "../../libs/database-session/src";
-import { SessionEntityManager } from "../../libs/database-session/src/session.entity-manager";
 import { Injectable } from "@nestjs/common";
 import { ExampleModel } from "./example.model";
+import { EntityManager } from "typeorm";
 
 @Injectable()
 export class ExampleRepository extends BaseRepository {
   constructor(
-    @InjectSessionEntityManager() sessionEntityManager: SessionEntityManager,
+    @InjectSessionEntityManager() sessionEntityManager: EntityManager,
   ) {
     super(sessionEntityManager);
   }

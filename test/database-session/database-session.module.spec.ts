@@ -43,6 +43,11 @@ describe('DatabaseSessionModule', () => {
       .delete('/transactions')
       .send({ value: "test value" });
 
-    expect(result.status).toBe(204);
+    const lastRow: ExampleModel[] = await connection
+      .getRepository<ExampleModel>(ExampleModel)
+      .find();
+
+    expect(result.status).toBe(500);
+    expect(lastRow).toBe([{id: 2, value: "test value"}]);
   });
 });
