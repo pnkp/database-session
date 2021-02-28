@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module, Scope } from '@nestjs/common';
 import { TypeOrmDatabaseSession } from './type-orm.database-session';
-import { DATABASE_SESSION, SESSION_ENTITY_MANAGER } from "./inject-decorators";
+import { DATABASE_SESSION, SESSION_QUERY_RUNNER } from "./inject-decorators";
 import { Connection } from "typeorm";
 import { FactoryProvider } from "@nestjs/common/interfaces/modules/provider.interface";
 
@@ -28,14 +28,14 @@ export class DatabaseSessionModule {
           inject: ['DatabaseSessionOptions'],
         },
         {
-          provide: SESSION_ENTITY_MANAGER,
+          provide: SESSION_QUERY_RUNNER,
           useFactory: (typeOrmDatabaseSession: TypeOrmDatabaseSession) => {
-            return typeOrmDatabaseSession.getEntityManager();
+            return typeOrmDatabaseSession.getQueryRunner();
           },
           inject: [DATABASE_SESSION]
         }
       ],
-      exports: [DATABASE_SESSION, SESSION_ENTITY_MANAGER],
+      exports: [DATABASE_SESSION, SESSION_QUERY_RUNNER],
       imports: factory.imports,
       module: DatabaseSessionModule,
     };
@@ -43,5 +43,5 @@ export class DatabaseSessionModule {
 }
 
 export interface DatabaseSessionModuleOptions extends Omit<FactoryProvider<Promise<Connection>>, "provide" | "scope"> {
-  imports?: DynamicModule[];
+  imports?: any[];
 }

@@ -1,56 +1,46 @@
 import { DatabaseSession } from "./database-session";
-import { Connection, EntityManager } from "typeorm";
+import { Connection, EntityManager, QueryRunner, Repository } from "typeorm";
+import { EntityTarget } from "typeorm/common/EntityTarget";
 
 export class TypeOrmDatabaseSession implements DatabaseSession {
-  private entityManager: EntityManager;
-  private transactionCommitPromise: (value: void) => void;
-  private transactionRejectPromise: () => void;
-  private afterTransactionPromise: Promise<void>;
+  private isTransactionBegan: boolean;
+  private queryRunner: QueryRunner;
 
   constructor(
     private readonly dbConnection: Connection,
   ) {
-    this.entityManager = this.dbConnection.createEntityManager();
+    this.queryRunner = this.dbConnection.createQueryRunner();
   }
 
   async transactionStart(): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        this.afterTransactionPromise = new Promise<void>(async (afterTransactionResolve) => {
-          try {
-            await this.dbConnection.transaction(async (entityManager: EntityManager) => {
-              this.entityManager = entityManager;
-              await new Promise<undefined>((resolveCommitPromise, rejectCommitPromise) => {
-                this.transactionCommitPromise = rejectCommitPromise;
-                this.transactionRejectPromise = rejectCommitPromise;
-                resolve();
-              });
-            });
-
-            return afterTransactionResolve();
-          } catch (err) {
-            return afterTransactionResolve();
-          }
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
+    this.isTransactionBegan = true;
+    await this.queryRunner.connect();
+    await this.queryRunner.startTransaction();
   }
 
   async transactionCommit(): Promise<void> {
-    this.transactionCommitPromise();
-    this.entityManager = this.dbConnection.createEntityManager();
-    return await this.afterTransactionPromise;
+    await this.queryRunner.commitTransaction();
+    await this.queryRunner.release();
+    this.isTransactionBegan = false;
   }
 
   async transactionRollback(): Promise<void> {
-    this.transactionRejectPromise();
-    this.entityManager = this.dbConnection.createEntityManager();
-    return await this.afterTransactionPromise;
+    await this.queryRunner.rollbackTransaction();
+    await this.queryRunner.release();
+    this.isTransactionBegan = false;
   }
 
-  getEntityManager(): EntityManager {
-    return this.entityManager;
+  getQueryRunner(): QueryRunner {
+    return this.queryRunner;
+  }
+
+  getRepository<TEntity>(entity: EntityTarget<TEntity>): Repository<TEntity> {
+    return this.getEntityManager().getRepository(entity);
+  }
+
+  private getEntityManager(): EntityManager {
+    return this.isTransactionBegan
+      ? this.queryRunner.manager
+      : this.dbConnection.createEntityManager();
   }
 }

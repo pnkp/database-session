@@ -1,8 +1,8 @@
 import { Inject } from "@nestjs/common";
 
 export const DATABASE_SESSION = 'DatabaseSession';
-export const SESSION_ENTITY_MANAGER = "SessionEntityManager";
+export const SESSION_QUERY_RUNNER = "SessionQueryRunner";
 
 export const InjectDatabaseSession: () => ParameterDecorator = () => Inject(DATABASE_SESSION);
 
-export const InjectSessionEntityManager: () => ParameterDecorator = () => Inject(SESSION_ENTITY_MANAGER);
+export const InjectSessionQueryRunner: () => ParameterDecorator = () => Inject(SESSION_QUERY_RUNNER);
