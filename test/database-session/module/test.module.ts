@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
-import { DatabaseSessionModule } from "../../libs/database-session/src";
 import { TestTransactionController } from "./testTransaction.controller";
 import { ExampleRepository } from "./example.repository";
 import { ExampleModel } from "./example.model";
 import { Connection } from "typeorm";
 import { getConnectionToken, TypeOrmModule } from "@nestjs/typeorm";
+import { DatabaseSessionModule } from "../../../libs/database-session/src";
 
 @Module({
   providers: [ExampleRepository],
