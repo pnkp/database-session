@@ -5,8 +5,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "test": "jest --forceExit",
-    "build": "./node_modules/.bin/tsc -p .",
-    "prepublish": "npm run build"
+    "build": "./node_modules/.bin/tsc -p ."
   },
   "dependencies": {
     "@nestjs/common": "^7.6.12",
