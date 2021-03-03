@@ -1,0 +1,20 @@
+name: CI tests
+
+on:
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run database container
+      run: docker-compose up -d
+    - name: Use Node js
+      uses: actions/setup-node@v1
+      with:
+        node-version: "14.x"
+    - run: npm ci
+    - run: npm test

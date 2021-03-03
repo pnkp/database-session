@@ -9,11 +9,10 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "emitDecoratorMetadata": true,
-    "baseUrl": "./libs/database-session/src"
   },
   "exclude": [
     "libs/database-session/node_modules",
     "dist",
-    "test"
+    "libs/database-session/test"
   ]
 }
