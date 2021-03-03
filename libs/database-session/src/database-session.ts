@@ -1,5 +1,5 @@
-import { Repository } from "typeorm";
-import { EntityTarget } from "typeorm/common/EntityTarget";
+import { Repository } from 'typeorm';
+import { EntityTarget } from 'typeorm/common/EntityTarget';
 
 export interface DatabaseSession {
   transactionStart(): Promise<void>;

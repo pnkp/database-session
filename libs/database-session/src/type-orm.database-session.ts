@@ -1,14 +1,12 @@
-import { DatabaseSession } from "./database-session";
-import { Connection, EntityManager, QueryRunner, Repository } from "typeorm";
-import { EntityTarget } from "typeorm/common/EntityTarget";
+import { DatabaseSession } from './database-session';
+import { Connection, EntityManager, QueryRunner, Repository } from 'typeorm';
+import { EntityTarget } from 'typeorm/common/EntityTarget';
 
 export class TypeOrmDatabaseSession implements DatabaseSession {
   private isTransactionBegan: boolean;
-  private queryRunner: QueryRunner;
+  private readonly queryRunner: QueryRunner;
 
-  constructor(
-    private readonly dbConnection: Connection,
-  ) {
+  constructor(private readonly dbConnection: Connection) {
     this.queryRunner = this.dbConnection.createQueryRunner();
   }
 
