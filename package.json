@@ -1,6 +1,6 @@
 {
   "name": "@antyper/database-session",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -41,10 +41,10 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "homepage": "https://gitlab.com/pnkp/antyper_database-session",
+  "homepage": "https://github.com/pnkp/database-session",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/pnkp/antyper_database-session"
+    "url": "https://github.com/pnkp/database-session"
   },
   "jest": {
     "moduleFileExtensions": [
