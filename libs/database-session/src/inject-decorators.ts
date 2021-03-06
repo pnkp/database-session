@@ -1,10 +1,18 @@
 import { Inject } from '@nestjs/common';
 
 export const DATABASE_SESSION = 'DatabaseSession';
-export const SESSION_QUERY_RUNNER = 'SessionQueryRunner';
+export const DATABASE_SESSION_MANAGER = 'DatabaseSessionManager';
 
-export const InjectDatabaseSession: () => ParameterDecorator = () =>
-  Inject(DATABASE_SESSION);
+export const composeDatabaseSessionProviderName = (
+  connectionName = 'default',
+) => {
+  return `${DATABASE_SESSION}_connection_${connectionName}`;
+};
 
-export const InjectSessionQueryRunner: () => ParameterDecorator = () =>
-  Inject(SESSION_QUERY_RUNNER);
+export const InjectDatabaseSession: (
+  connectionName?: string,
+) => ParameterDecorator = (connectionName?: string) =>
+  Inject(composeDatabaseSessionProviderName(connectionName));
+
+export const InjectDatabaseSessionManager = () =>
+  Inject(DATABASE_SESSION_MANAGER);

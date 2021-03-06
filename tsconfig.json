@@ -13,6 +13,5 @@
   "exclude": [
     "libs/database-session/node_modules",
     "dist",
-    "libs/database-session/test"
   ]
 }

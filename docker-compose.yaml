@@ -7,3 +7,10 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
+
+  db2:
+    image: library/postgres:13.2-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5433:5432
