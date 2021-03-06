@@ -1,5 +1,5 @@
 # About package
-This package able to manager easily way to database transaction, now you can start and commit transaction wherever you are.  
+This package allows you to manage database transactions in easy way. Now you can start and commit the transaction wherever you are. 
 _**WARNING: Package running in REQUEST SCOPE**_
  
 ## Installation
