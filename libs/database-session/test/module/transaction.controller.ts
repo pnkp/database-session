@@ -5,6 +5,7 @@ import { DatabaseSession, InjectDatabaseSessionManager } from '../../src';
 import { DatabaseSessionManager } from '../../src/database-session.manager';
 import { SECOND_DATABASE_CONNECTION } from './database-session-test.module';
 import { ExampleSecondRepository } from './example-second.repository';
+import { Transaction } from '../../src';
 
 @Controller('transactions')
 export class TransactionController {
@@ -104,5 +105,26 @@ export class TransactionController {
       });
       throw e;
     }
+  }
+
+  @Post('decorator')
+  @Transaction()
+  async commitByDecorator(
+    @Body() data: { value: string },
+  ): Promise<ExampleModel> {
+    return await this.exampleRepository.save(data);
+  }
+
+  @Transaction()
+  @Delete('decorator')
+  async rollbackByDecorator(@Body() data: { value: string }): Promise<never> {
+    await this.exampleRepository.save(data);
+    throw new Error('transaction will be rollback');
+  }
+
+  @Post('conflict')
+  async transactionConflict(): Promise<void> {
+    await this.databaseSession.transactionStart();
+    await this.databaseSession.transactionStart();
   }
 }
