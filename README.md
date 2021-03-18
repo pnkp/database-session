@@ -33,6 +33,13 @@ export class AppModule {}
 
 ## Use case
 ```typescript
+// example.repository.ts
+import { 
+  Transaction,
+  InjectDatabaseSessionManager,
+  DatabaseSessionManager,
+} from "@antyper/database-session"
+
 @Injectable()
 export class ExampleRepository {
   private databaseSession: DatabaseSession;
@@ -40,7 +47,7 @@ export class ExampleRepository {
     @InjectDatabaseSessionManager()
     private readonly databaseSessionManager: DatabaseSessionManager,
   ) {
-    this.databaseSession = this.databaseSessionManager.getDatabaseSession();
+    this.databaseSession = this.databaseSessionManager.getDatabaseSession("databaseConnectionName");
   }
 
   async save(exampleModel: Partial<ExampleModel>): Promise<ExampleModel> {
@@ -49,35 +56,22 @@ export class ExampleRepository {
   }
 }
 
+// transaction.controller.ts
+import { Transaction } from "@antyper/database-session"
+
 @Controller('transactions')
 export class TransactionController {
   private readonly databaseSession: DatabaseSession;
   constructor(
     private readonly exampleRepository: ExampleRepository,
-    @InjectDatabaseSessionManager()
-    private readonly databaseSessionManager: DatabaseSessionManager,
-  ) {
-    this.databaseSession = this.databaseSessionManager.getDatabaseSession();
-  }
+  ) {}
 
+  @Transaction("databaseConnectionName")
   @Post()
   async commitTransaction(
     @Body() data: { value: string },
   ): Promise<ExampleModel> {
-    try {
-      // starting transacrtion
-      await this.databaseSession.transactionStart();
-      const result = await this.exampleRepository.save(data);
-      
-      // commiting transaction 
-      await this.databaseSession.transactionCommit();
-      return result;
-    } catch (e) {
-      
-      // rollback transaction
-      await this.databaseSession.transactionRollback();
-      throw e;
-    }
+    return await this.exampleRepository.save(data);
   }
 }
 ```
