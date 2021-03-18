@@ -20,6 +20,7 @@ describe('DatabaseSessionModule', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    app.useLogger(['error']);
     connection = app.get(getConnectionToken());
     connectionSecondDatabase = app.get(
       getConnectionToken(SECOND_DATABASE_CONNECTION),
@@ -76,6 +77,14 @@ describe('DatabaseSessionModule', () => {
       });
       expect(rows[1]).toBeUndefined();
     });
+
+    it('should throw exception, when in this same time transaction were stared', async () => {
+      const result = await request(app.getHttpServer())
+        .post('/transactions/conflict')
+        .send({ value: 'test value' });
+
+      expect(result.status).toBe(500);
+    });
   });
 
   describe('two database sessions', () => {
@@ -128,6 +137,31 @@ describe('DatabaseSessionModule', () => {
         id: 1,
         value: 'default database',
       });
+    });
+  });
+
+  describe('Transaction decorator', () => {
+    it(`should commit transaction`, async () => {
+      const response = await request(app.getHttpServer())
+        .post('/transactions/decorator')
+        .send({ value: 'decorator' });
+
+      const lastRow: ExampleModel[] = await getRows(connection);
+
+      expect(response.status).toBe(201);
+      expect(lastRow.length).toBe(1);
+      expect(lastRow[0]).toMatchObject({ id: 1, value: 'decorator' });
+    });
+
+    it(`should rollback transaction`, async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/transactions/decorator')
+        .send({ value: 'decorator' });
+
+      const rows: ExampleModel[] = await getRows(connection);
+
+      expect(response.status).toBe(500);
+      expect(rows.length).toBe(0);
     });
   });
 });

@@ -1,6 +1,7 @@
 import { DatabaseSession } from './database-session';
 import { Connection, EntityManager, QueryRunner, Repository } from 'typeorm';
 import { EntityTarget } from 'typeorm/common/EntityTarget';
+import { TransactionAlreadyStartedException } from './TransactionAlreadyStartedException';
 
 export class TypeOrmDatabaseSession implements DatabaseSession {
   private isTransactionBegan: boolean;
@@ -11,6 +12,9 @@ export class TypeOrmDatabaseSession implements DatabaseSession {
   }
 
   async transactionStart(): Promise<void> {
+    if (this.isTransactionBegan) {
+      throw new TransactionAlreadyStartedException();
+    }
     this.isTransactionBegan = true;
     await this.queryRunner.connect();
     await this.queryRunner.startTransaction();
