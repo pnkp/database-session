@@ -10,14 +10,20 @@ export class DatabaseSessionManager {
   >();
 
   constructor(connectionManager: ConnectionManager) {
-    connectionManager.connections.forEach((connection) => {
-      this.databaseSessions.set(
-        composeDatabaseSessionProviderName(connection.name),
-        new TypeOrmDatabaseSession(connection),
-      );
+    const databaseSessions: Array<
+      [string, DatabaseSession]
+    > = connectionManager.connections.map((connection) => {
+      return [connection.name, new TypeOrmDatabaseSession(connection)];
     });
+
+    this.databaseSessions = new Map<string, DatabaseSession>(databaseSessions);
   }
 
+  /**
+   * Getting instance of DatabaseSession class with given database connection
+   * If you do not provide a parameter, you will use the DatabaseSession instance for the "default" database connection
+   * @param connectionName
+   */
   getDatabaseSession(connectionName?: string): DatabaseSession {
     return this.databaseSessions.get(
       composeDatabaseSessionProviderName(connectionName),

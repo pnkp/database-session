@@ -3,6 +3,10 @@ import { DATABASE_SESSION_MANAGER } from './inject-decorators';
 import { DatabaseSessionManager } from './database-session.manager';
 import { assignMetadata, copyMetadata } from './metadata-utils';
 
+/**
+ * If you do not provide a parameter, you will use the transaction for the "default" database connection
+ * @param connectionName
+ */
 export function Transaction(connectionName = 'default') {
   const inject = Inject(DATABASE_SESSION_MANAGER);
 
