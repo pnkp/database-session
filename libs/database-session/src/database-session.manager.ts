@@ -18,6 +18,11 @@ export class DatabaseSessionManager {
     });
   }
 
+  /**
+   * Getting instance of DatabaseSession class with given database connection
+   * If you do not provide a parameter, you will use the DatabaseSession instance for the "default" database connection
+   * @param connectionName
+   */
   getDatabaseSession(connectionName?: string): DatabaseSession {
     return this.databaseSessions.get(
       composeDatabaseSessionProviderName(connectionName),
