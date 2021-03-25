@@ -2,6 +2,7 @@ import { Inject } from '@nestjs/common';
 import { DATABASE_SESSION_MANAGER } from './inject-decorators';
 import { DatabaseSessionManager } from './database-session.manager';
 import { assignMetadata, copyMetadata } from './metadata-utils';
+import { v4 as uuid } from 'uuid';
 
 /**
  * If you do not provide a parameter, you will use the transaction for the "default" database connection
@@ -15,14 +16,14 @@ export function Transaction(connectionName = 'default') {
     propertyKey: string,
     propertyDescriptor: PropertyDescriptor,
   ) => {
-    inject(target, 'databaseSessionManager');
+    const injectorKey = `${uuid()}_databaseSessionManager`;
+    inject(target, injectorKey);
 
     const originalMethod = propertyDescriptor.value;
     const copiedMetadata = copyMetadata(originalMethod);
 
     propertyDescriptor.value = async function (...args: any) {
-      const databaseSessionManager: DatabaseSessionManager = this
-        .databaseSessionManager;
+      const databaseSessionManager: DatabaseSessionManager = this[injectorKey];
       const databaseSession = databaseSessionManager.getDatabaseSession(
         connectionName,
       );

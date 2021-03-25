@@ -9,6 +9,9 @@
     "build": "./node_modules/.bin/tsc -p .",
     "prepublish": "npm run build"
   },
+  "dependencies": {
+    "uuid": "^8.3.2"
+  },
   "peerDependencies": {
     "@nestjs/common": "^7.6.12",
     "rxjs": "^6.6.3",

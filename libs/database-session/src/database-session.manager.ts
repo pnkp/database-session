@@ -10,13 +10,12 @@ export class DatabaseSessionManager {
   >();
 
   constructor(connectionManager: ConnectionManager) {
-    const databaseSessions: Array<
-      [string, DatabaseSession]
-    > = connectionManager.connections.map((connection) => {
-      return [connection.name, new TypeOrmDatabaseSession(connection)];
+    connectionManager.connections.forEach((connection) => {
+      this.databaseSessions.set(
+        composeDatabaseSessionProviderName(connection.name),
+        new TypeOrmDatabaseSession(connection),
+      );
     });
-
-    this.databaseSessions = new Map<string, DatabaseSession>(databaseSessions);
   }
 
   /**
