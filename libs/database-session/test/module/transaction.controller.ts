@@ -1,52 +1,48 @@
 import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { ExampleRepository } from './example.repository';
 import { ExampleModel } from './example.model';
-import { DatabaseSession, InjectDatabaseSessionManager } from '../../src';
-import { DatabaseSessionManager } from '../../src/database-session.manager';
+import { InjectDatabaseSessionManager, Transaction } from '../../src';
 import { SECOND_DATABASE_CONNECTION } from './database-session-test.module';
 import { ExampleSecondRepository } from './example-second.repository';
-import { Transaction } from '../../src';
+import { DatabaseSessionManager } from "../../src/database/database-session.manager";
 
 @Controller('transactions')
 export class TransactionController {
-  private databaseSession: DatabaseSession;
-  private databaseSessionSecondDatabase: DatabaseSession;
   constructor(
     private readonly exampleRepository: ExampleRepository,
     private readonly exampleSecondRepository: ExampleSecondRepository,
     @InjectDatabaseSessionManager()
     private readonly databaseSessionManager: DatabaseSessionManager,
-  ) {
-    this.databaseSession = this.databaseSessionManager.getDatabaseSession();
-    this.databaseSessionSecondDatabase = this.databaseSessionManager.getDatabaseSession(
-      SECOND_DATABASE_CONNECTION,
-    );
-  }
+  ) {}
 
   @Post()
   async commitTransaction(
     @Body() data: { value: string },
   ): Promise<ExampleModel> {
+    const databaseSession = this.databaseSessionManager.getDatabaseSession();
+
     try {
-      await this.databaseSession.transactionStart();
+      await databaseSession.transactionStart();
       const result = await this.exampleRepository.save(data);
-      await this.databaseSession.transactionCommit();
+      await databaseSession.transactionCommit();
       return result;
     } catch (e) {
-      await this.databaseSession.transactionRollback();
+      await databaseSession.transactionRollback();
       throw e;
     }
   }
 
   @Delete()
   async rollbackTransaction(@Body() data: { value: string }): Promise<never> {
+    const databaseSession = this.databaseSessionManager.getDatabaseSession();
+
     try {
-      await this.databaseSession.transactionStart();
+      await databaseSession.transactionStart();
       await this.exampleRepository.save(data);
       throw new Error('Transaction will be rollback!');
-      await this.databaseSession.transactionCommit();
+      await databaseSession.transactionCommit();
     } catch (e) {
-      await this.databaseSession.transactionRollback();
+      await databaseSession.transactionRollback();
       await this.exampleRepository.save({ value: 'rollback transaction' });
       throw e;
     }
@@ -56,13 +52,17 @@ export class TransactionController {
   async commitTransactionInSecondDatabase(
     @Body() data: { value: string },
   ): Promise<ExampleModel> {
+    const databaseSessionSecondDatabase = this.databaseSessionManager.getDatabaseSession(
+      SECOND_DATABASE_CONNECTION,
+    );
+
     try {
-      await this.databaseSessionSecondDatabase.transactionStart();
+      await databaseSessionSecondDatabase.transactionStart();
       const result = await this.exampleSecondRepository.save(data);
-      await this.databaseSessionSecondDatabase.transactionCommit();
+      await databaseSessionSecondDatabase.transactionCommit();
       return result;
     } catch (e) {
-      await this.databaseSessionSecondDatabase.transactionRollback();
+      await databaseSessionSecondDatabase.transactionRollback();
       throw e;
     }
   }
@@ -71,13 +71,17 @@ export class TransactionController {
   async rollbackTransactionInSecondDatabase(
     @Body() data: { value: string },
   ): Promise<never> {
+    const databaseSessionSecondDatabase = this.databaseSessionManager.getDatabaseSession(
+      SECOND_DATABASE_CONNECTION,
+    );
+
     try {
-      await this.databaseSessionSecondDatabase.transactionStart();
+      await databaseSessionSecondDatabase.transactionStart();
       await this.exampleSecondRepository.save(data);
       throw new Error('Transaction will be rollback!');
-      await this.databaseSession.transactionCommit();
+      await databaseSessionSecondDatabase.transactionCommit();
     } catch (e) {
-      await this.databaseSessionSecondDatabase.transactionRollback();
+      await databaseSessionSecondDatabase.transactionRollback();
       await this.exampleSecondRepository.save({
         value: 'rollback transaction in second database',
       });
@@ -89,17 +93,22 @@ export class TransactionController {
   async combineOfTwoDatabaseTransactions(
     @Body() data: { value: string },
   ): Promise<never> {
+    const databaseSession = this.databaseSessionManager.getDatabaseSession();
+    const databaseSessionSecondDatabase = this.databaseSessionManager.getDatabaseSession(
+      SECOND_DATABASE_CONNECTION,
+    );
+
     try {
-      await this.databaseSession.transactionStart();
-      await this.databaseSessionSecondDatabase.transactionStart();
+      await databaseSession.transactionStart();
+      await databaseSessionSecondDatabase.transactionStart();
 
       await this.exampleRepository.save(data);
       await this.exampleSecondRepository.save(data);
 
-      await this.databaseSession.transactionCommit();
+      await databaseSession.transactionCommit();
       throw new Error('Transaction will be rollback!');
     } catch (e) {
-      await this.databaseSessionSecondDatabase.transactionRollback();
+      await databaseSessionSecondDatabase.transactionRollback();
       await this.exampleSecondRepository.save({
         value: 'rollback transaction in second database',
       });
@@ -124,7 +133,8 @@ export class TransactionController {
 
   @Post('conflict')
   async transactionConflict(): Promise<void> {
-    await this.databaseSession.transactionStart();
-    await this.databaseSession.transactionStart();
+    const databaseSession = this.databaseSessionManager.getDatabaseSession();
+    await databaseSession.transactionStart();
+    await databaseSession.transactionStart();
   }
 }

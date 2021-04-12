@@ -1,0 +1,30 @@
+name: Build and publish package
+
+on:
+  push:
+    branches:
+      - master
+env:
+  NPM_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+      - run: npm ci
+      - run: npm build
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_PUBLISH_TOKEN }}
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.0.6
+      - uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.extract_version.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}

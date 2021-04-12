@@ -1,6 +1,6 @@
 {
   "name": "@antyper/database-session",
-  "version": "0.8.1",
+  "version": "2.1.0",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "prepublish": "npm run build",
@@ -10,6 +10,7 @@
     "prepublish": "npm run build"
   },
   "dependencies": {
+    "async-local-storage": "^2.3.1",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
