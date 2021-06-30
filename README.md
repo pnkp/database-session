@@ -1,7 +1,3 @@
-# About package
-This package allows you to manage database transactions in easy way. Now you can start and commit the transaction wherever you are. 
-_**WARNING: Package running in REQUEST SCOPE**_
- 
 ## Installation
 ```bash
 npm install --save @antyper/database-session typeorm @nestjs/common rxjs 
@@ -12,6 +8,28 @@ npm install --save pg
 ## Configuration
 
 ```typescript
+// main.ts
+import { 
+  DatabaseSessionInitializer,
+  TransactionMiddleware,
+  DATABASE_SESSION_INITIALIZER,
+} from '@antyper/database-session';
+
+async function bootstrap() {
+  // ...
+  const databaseSessionInitializer = app.get<DatabaseSessionInitializer>(
+    DATABASE_SESSION_INITIALIZER,
+  );
+  app.use(TransactionMiddleware(databaseSessionInitializer));
+  // ..
+}
+bootstrap();
+```
+
+```typescript
+// app.module.ts
+import { DatabaseSessionModule } from '@antyper/database-session';
+
 @Module({
   providers: [],
   imports: [
@@ -28,7 +46,8 @@ npm install --save pg
   ],
   controllers: [],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 ## Use case

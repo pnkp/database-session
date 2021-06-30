@@ -1,10 +1,15 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TransactionController } from './transaction.controller';
 import { ExampleRepository } from './example.repository';
 import { ExampleModel } from './example.model';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseSessionModule } from '../../src';
+import {
+  DatabaseSessionInitializer,
+  DatabaseSessionModule,
+  InjectDatabaseSessionInitializer,
+} from '../../src';
 import { ExampleSecondRepository } from './example-second.repository';
+import { TransactionMiddleware } from '../../src/transaction.middlewares';
 
 export const SECOND_DATABASE_CONNECTION = 'second-database';
 
@@ -34,4 +39,15 @@ export const SECOND_DATABASE_CONNECTION = 'second-database';
   ],
   controllers: [TransactionController],
 })
-export class DatabaseSessionTestModule {}
+export class DatabaseSessionTestModule implements NestModule {
+  constructor(
+    @InjectDatabaseSessionInitializer()
+    private readonly databaseSessionInitializer: DatabaseSessionInitializer,
+  ) {}
+
+  configure(consumer: MiddlewareConsumer): any {
+    consumer
+      .apply(TransactionMiddleware(this.databaseSessionInitializer))
+      .forRoutes('*');
+  }
+}

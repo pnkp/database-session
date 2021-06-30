@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
-import { DATABASE_SESSION_MANAGER } from './inject-decorators';
-import { DatabaseSessionManager } from './database-session.manager';
-import { assignMetadata, copyMetadata } from './metadata-utils';
+import { DATABASE_SESSION_MANAGER } from '../inject-decorators';
+import { AsyncStorageDatabaseSessionManager } from './async-storage-database-session.manager';
+import { assignMetadata, copyMetadata } from '../metadata-utils';
 import { v4 as uuid } from 'uuid';
 
 /**
@@ -23,7 +23,9 @@ export function Transaction(connectionName = 'default') {
     const copiedMetadata = copyMetadata(originalMethod);
 
     propertyDescriptor.value = async function (...args: any) {
-      const databaseSessionManager: DatabaseSessionManager = this[injectorKey];
+      const databaseSessionManager: AsyncStorageDatabaseSessionManager = this[
+        injectorKey
+      ];
       const databaseSession = databaseSessionManager.getDatabaseSession(
         connectionName,
       );

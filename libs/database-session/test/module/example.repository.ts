@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { ExampleModel } from './example.model';
-import { DatabaseSession, InjectDatabaseSessionManager } from '../../src';
-import { DatabaseSessionManager } from '../../src/database-session.manager';
+import { DatabaseSessionManager, InjectDatabaseSessionManager } from "../../src";
 
 @Injectable()
 export class ExampleRepository {
-  private databaseSession: DatabaseSession;
   constructor(
     @InjectDatabaseSessionManager()
     private readonly databaseSessionManager: DatabaseSessionManager,
-  ) {
-    this.databaseSession = this.databaseSessionManager.getDatabaseSession();
-  }
+  ) {}
 
   async save(exampleModel: Partial<ExampleModel>): Promise<ExampleModel> {
-    const repository = this.databaseSession.getRepository(ExampleModel);
+    const repository = this.databaseSessionManager
+      .getDatabaseSession()
+      .getRepository(ExampleModel);
     return await repository.save(exampleModel);
   }
 }

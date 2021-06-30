@@ -1,7 +1,7 @@
 import { DatabaseSession } from './database-session';
 import { Connection, EntityManager, QueryRunner, Repository } from 'typeorm';
 import { EntityTarget } from 'typeorm/common/EntityTarget';
-import { TransactionAlreadyStartedException } from './TransactionAlreadyStartedException';
+import { TransactionAlreadyStartedException } from '../exceptions/transaction-already-started.exception';
 
 export class TypeOrmDatabaseSession implements DatabaseSession {
   private isTransactionBegan: boolean;
